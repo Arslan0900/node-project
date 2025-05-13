@@ -14,16 +14,41 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Docker image
+      - name: Build Docker image (Linux)
+        if: runner.os == 'Linux'
         run: |
           cd /home/ubuntu/actions-runner/_work/node-project/node-project
           docker build -t node-app .
 
-      - name: Remove existing container if exists
+      - name: Build Docker image (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd "C:\Users\Arslan\Desktop\github runner\_work\node-project\node-project"
+          docker build -t node-app .
+
+      - name: Remove existing container if exists (Linux)
+        if: runner.os == 'Linux'
         run: |
           docker ps -a -q -f name=node-app-container | grep -q . && docker rm -f node-app-container || echo "No existing container to remove"
 
-      - name: Run Docker container
+      - name: Remove existing container if exists (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          if (docker ps -a -q -f "name=node-app-container") {
+            docker rm -f node-app-container
+          } else {
+            echo "No existing container to remove"
+          }
+
+      - name: Run Docker container (Linux)
+        if: runner.os == 'Linux'
         run: |
           cd /home/ubuntu/actions-runner/_work/node-project/node-project
+          docker run -d -p 3000:3000 --name node-app-container node-app
+
+      - name: Run Docker container (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd "C:\Users\Arslan\Desktop\github runner\_work\node-project\node-project"
           docker run -d -p 3000:3000 --name node-app-container node-app
