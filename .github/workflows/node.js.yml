@@ -19,6 +19,10 @@ jobs:
           cd /home/ubuntu/actions-runner/_work/node-project/node-project
           docker build -t node-app .
 
+      - name: Remove existing container if exists
+        run: |
+          docker ps -a -q -f name=node-app-container | grep -q . && docker rm -f node-app-container || echo "No existing container to remove"
+
       - name: Run Docker container
         run: |
           cd /home/ubuntu/actions-runner/_work/node-project/node-project
