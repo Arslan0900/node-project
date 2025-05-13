@@ -1,4 +1,4 @@
-name: Node.js CI with Docker
+name: Node.js CI with Docker (Cross-Platform)
 
 on:
   push:
@@ -14,41 +14,52 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Docker image (Linux)
+      - name: Set environment variables for path (Linux)
         if: runner.os == 'Linux'
-        run: |
-          cd /home/ubuntu/actions-runner/_work/node-project/node-project
-          docker build -t node-app .
+        run: echo "PROJECT_DIR=/home/ubuntu/actions-runner/_work/node-project/node-project" >> $GITHUB_ENV
 
-      - name: Build Docker image (Windows)
+      - name: Set environment variables for path (Windows)
         if: runner.os == 'Windows'
-        run: |
-          cd "C:\Users\Arslan\Desktop\github runner\_work\node-project\node-project"
-          docker build -t node-app .
+        run: echo "PROJECT_DIR=C:\Users\Arslan\Desktop\github runner\_work\node-project\node-project" >> $env:GITHUB_ENV
+        shell: powershell
 
-      - name: Remove existing container if exists (Linux)
-        if: runner.os == 'Linux'
+      - name: Build Docker image
         run: |
-          docker ps -a -q -f name=node-app-container | grep -q . && docker rm -f node-app-container || echo "No existing container to remove"
+          echo "Building Docker image in $env:PROJECT_DIR"
+          cd "$env:PROJECT_DIR"
+          docker build -t node-app .
+        shell: powershell
 
       - name: Remove existing container if exists (Windows)
         if: runner.os == 'Windows'
         shell: powershell
         run: |
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
           if (docker ps -a -q -f "name=node-app-container") {
             docker rm -f node-app-container
           } else {
             echo "No existing container to remove"
           }
 
-      - name: Run Docker container (Linux)
+      - name: Remove existing container if exists (Linux)
         if: runner.os == 'Linux'
         run: |
-          cd /home/ubuntu/actions-runner/_work/node-project/node-project
-          docker run -d -p 3000:3000 --name node-app-container node-app
+          if docker ps -a -q -f name=node-app-container | grep -q .; then
+            docker rm -f node-app-container
+          else
+            echo "No existing container to remove"
+          fi
 
       - name: Run Docker container (Windows)
         if: runner.os == 'Windows'
+        shell: powershell
         run: |
-          cd "C:\Users\Arslan\Desktop\github runner\_work\node-project\node-project"
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+          cd "$env:PROJECT_DIR"
+          docker run -d -p 3000:3000 --name node-app-container node-app
+
+      - name: Run Docker container (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cd "$PROJECT_DIR"
           docker run -d -p 3000:3000 --name node-app-container node-app
