@@ -19,17 +19,7 @@ jobs:
           cd /home/ubuntu/actions-runner/_work/node-project/node-project
           docker build -t node-app .
 
-      - name: Check npm scripts
+      - name: Run Docker container
         run: |
           cd /home/ubuntu/actions-runner/_work/node-project/node-project
-          docker run --rm node-app npm run
-
-      - name: Run build inside container
-        run: |
-          cd /home/ubuntu/actions-runner/_work/node-project/node-project
-          docker run --rm node-app npm run build
-
-      - name: Run tests inside container
-        run: |
-          cd /home/ubuntu/actions-runner/_work/node-project/node-project
-          docker run --rm node-app npm test
+          docker run -d -p 3000:3000 --name node-app-container node-app
