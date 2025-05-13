@@ -16,16 +16,20 @@ jobs:
 
       - name: Build Docker image
         run: |
+          cd /home/ubuntu/actions-runner/_work/node-project/node-project
           docker build -t node-app .
 
       - name: Check npm scripts
         run: |
+          cd /home/ubuntu/actions-runner/_work/node-project/node-project
           docker run --rm node-app npm run
 
       - name: Run build inside container
         run: |
+          cd /home/ubuntu/actions-runner/_work/node-project/node-project
           docker run --rm node-app npm run build
 
       - name: Run tests inside container
         run: |
+          cd /home/ubuntu/actions-runner/_work/node-project/node-project
           docker run --rm node-app npm test
