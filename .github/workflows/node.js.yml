@@ -18,6 +18,10 @@ jobs:
         run: |
           docker build -t node-app .
 
+      - name: Check npm scripts
+        run: |
+          docker run --rm node-app npm run
+
       - name: Run build inside container
         run: |
           docker run --rm node-app npm run build
